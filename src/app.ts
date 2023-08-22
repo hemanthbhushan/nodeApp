@@ -1,7 +1,10 @@
-import express from "express";
+import express, { Router } from "express";
 import * as bodyParser from "body-parser";
 import cors from "cors";
 import dotenv from "dotenv";
+import routes from "../src/Routes/blockRoutes"
+import cron from "node-cron";
+import eventFetch from "../src/controller/txService";
 // import mongo from "./helpers/mongoHelper";
 // import mySQL from "./helpers/mySQLHelper";
 
@@ -14,6 +17,9 @@ class App{
         dotenv.config();
         this.port = process.env.PORT||9000;
         this.initMiddleware();
+        // cron.schedule("*/3 * * * * *", async () => {
+        //     await eventFetch.fetchLatestBlock();
+        // })
     }
 
 
@@ -30,6 +36,7 @@ class App{
             // mongo.connectMongoDB();
             // mySQL.connectMySQLDB();
         // You can import routes into this file and use it as a middleware
+        this.app.use(routes);
     }
 
 }
