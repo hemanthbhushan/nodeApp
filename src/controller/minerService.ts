@@ -2,50 +2,93 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 import minerBlockSchema from "../schema/minerBlockSchema";
 
-class blockStore {
+class BlockStore {
   constructor() {
     dotenv.config();
   }
+
   public async latestBlock(req: Request, res: Response) {
-    // const Web3 = require("web3");
-    // const web3 = new Web3(new Web3.providers.HttpProvider(process.env.RPC));
     try {
-    //   const blockNumber = await web3.eth.getBlockNumber();
-      console.log("the latest block in the miner is " + req.body.latestBlockNumber);
+      const { latestBlockNumber, minerName } = req.body;
 
-       let blockdata = {
-          latestBlockNumber:req.body.latestBlockNumber,
-          minerName: req.body.minerName
+      const existingBlock = await minerBlockSchema.findOne({
+        latestBlockNumber,
+      });
 
-       }
-       console.log(blockdata,"this is the block data")
-      //   await minerBlockSchema.insertMany({
-      //     latestBlockNumber:req.body.latestBlockNumber,
-      //     minerName: req.body.minerName
-      //   })
-    //   await minerBlockSchema
-    //     .insertMany({
-    //       latestBlockNumber: req.body.latestBlockNumber,
-    //       minerName: req.body.minerName,
-    //     })
-    //     .then((response) => {
-    //       res.send(JSON.stringify(response));
-    //     })
-    //     .catch((err) => {
-    //       res.status(404).send({ status: 404, error: true, message: err });
-    //     });
-          res.send({
-            status: 200,
-            error: false,
-            blockNumber: req.body.latestBlockNumber,
-          });
+      if (!existingBlock) {
+        await minerBlockSchema.create({ latestBlockNumber, minerName });
+        console.log(`The latest block added to DB: ${latestBlockNumber}`);
+        res.status(200).json({
+          message: "BlockAdded",
+          blockNumber: latestBlockNumber,
+        });
+      } else {
+        console.log(`Block number ${latestBlockNumber} already exists`);
+        res.status(200).json({
+          message: "BlockExists",
+          blockNumber: latestBlockNumber,
+        });
+      }
     } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
 
-      //   return blockNumber;
-      console.log(error);
-      throw new Error(`Error ----------- ${error}`);
+  public async registerMiner(req: Request, res: Response) {
+    try {
+      const { latestBlockNumber, minerName } = req.body;
+
+      console.log("Block number:", latestBlockNumber);
+
+      const updatedDocument = await minerBlockSchema.findOneAndUpdate(
+        { latestBlockNumber }, // Shorthand for { latestBlockNumber: latestBlockNumber }
+        { minerName },
+        { returnOriginal: false }
+      );
+
+      console.log("Updated document:", updatedDocument);
+
+      // Using json instead of send:
+      // Using json instead of send for JSON responses is more semantically correct.
+      res.status(200).json({
+        message: "DB updated",
+        blockNumber: latestBlockNumber,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+
+  public async deleteMiner(req: Request, res: Response) {
+    try {
+      const { latestBlockNumber } = req.body;
+
+      const deletedDocument = await minerBlockSchema.findOneAndDelete(
+        { latestBlockNumber },
+        { returnOriginal: true }
+      );
+
+      console.log("Deleted Document:", deletedDocument);
+
+      res.status(200).json({
+        message: "DB Deleted",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
     }
   }
 }
 
-export default new blockStore();
+export default new BlockStore();
