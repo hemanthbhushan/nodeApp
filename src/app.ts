@@ -17,7 +17,8 @@ class App {
     this.port = process.env.PORT || 9000;
     this.initMiddleware();
     cron.schedule("*/3 * * * * *", async () => {
-        await eventFetch.fetchLatestBlock();
+        // await eventFetch.fetchLatestBlock();
+        await eventFetch.fetchLatestEvent();
     })
   }
 

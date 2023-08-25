@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import minersLoginSchema from "../schema/minersLoginSchema";
+import jwt from "jsonwebtoken";
 
 class SignUpApi {
   public async minerSignUp(req: Request, res: Response) {
@@ -41,7 +42,7 @@ class SignUpApi {
         { accountAddress },
         "password"
       );
-      console.log(user,"user")
+      console.log(user, "user");
 
       if (!user) {
         return res.status(200).json({
