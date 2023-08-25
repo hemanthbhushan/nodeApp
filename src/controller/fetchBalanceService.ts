@@ -1,7 +1,5 @@
-import dotenv from "dotenv";
 import { Request, Response } from "express";
 import sortedBalanceSchema from "../schema/sortedBalanceSchema";
-import balanceSchema from "../schema/balanceSchema";
 import { zeroAddress } from "../common/constants";
 
 class FetchBalance {
