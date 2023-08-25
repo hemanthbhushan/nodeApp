@@ -77,65 +77,70 @@ class EventFetch {
   //     throw new Error(`Error: ${error}`);
   //   }
   // }
-  
-  public fetchLatestEvent = async () => {
-    const web3 = new Web3(
-      new Web3.providers.HttpProvider(process.env.RPC as string)
-    );
+
+  async fetchLatestEvent() {
     try {
-      let latest_block = await web3.eth.getBlockNumber();
+      const web3 = new Web3(
+        new Web3.providers.HttpProvider(process.env.RPC as string)
+      );
+
+      const receipt = await web3.eth.getTransactionReceipt(
+        process.env.TXHash as string
+      );
+
+      const latestBlockNumber = await web3.eth.getBlockNumber();
       const temp = await latestBlockSchema.findOne().sort({ createdAt: -1 });
+
+      // const historicBlock = temp
+      // ? Number(temp.latestBlockNumber)
+      //   : receipt.blockNumber;
       const historicBlock = temp
         ? Number(temp.latestBlockNumber)
         : process.env.BLOCK;
-      latest_block =
-        Number(historicBlock) + 100 > latest_block
-          ? latest_block
-          : Number(historicBlock) + 100;
+      // console.log(historicBlock, "historicBlock");
+
+      const maxBlockLimit = Number(historicBlock) + 1000;
+      // console.log(maxBlockLimit, "maxBlockLimit");
+      const toBlock = Math.min(latestBlockNumber, maxBlockLimit);
+
       const contractInstance = new web3.eth.Contract(
         UsdtAbi,
         process.env.USDTAddress
       );
       const events = await contractInstance.getPastEvents("Transfer", {
         fromBlock: historicBlock,
-        toBlock: latest_block,
+        toBlock: toBlock,
       });
-      const sdk = Number(historicBlock);
-      console.log("==========events=======================", events);
-      const myEvents = await events
-        .filter((e: any) => {
-          console.log("e", e);
-          return e.event === "Mint";
-        })
-        .map((event: any) => {
-          return {
-            blockNumber: event.blockNumber,
-            fromAddress: event.returnValues.from,
-            toAddress: event.returnValues.to,
-            tokenAmount: event.returnValues.value,
-          };
-        });
+      console.log("events=========>",events)
+
+      const myEvents = events
+        .filter((event) => event.event === "Transfer")
+        .map((event) => ({
+          blockNumber: event.blockNumber,
+          fromAddress: event.returnValues.from,
+          toAddress: event.returnValues.to,
+          tokenAmount: event.returnValues.value,
+        }));
+
       await balanceSchema.insertMany(myEvents);
 
-      let blockObj = {
-        lastBlockNumber:
-          Number(historicBlock) > Number(latest_block)
-            ? Number(historicBlock)
-            : Number(latest_block) + 1,
+      const blockObj = {
+        latestBlockNumber: Math.max(Number(historicBlock), toBlock) + 1,
       };
+
       if (!temp) {
         await latestBlockSchema.create(blockObj);
       } else {
         await latestBlockSchema.findOneAndUpdate(
-          { lastBlockNumber: sdk },
+          { lastBlockNumber: historicBlock },
           blockObj
         );
       }
     } catch (err) {
-      console.log(err);
-      throw new Error(`Error ----------- ${err}`);
+      console.error(err);
+      throw new Error(`Error: ${err}`);
     }
-  };
+  }
 }
 
 export default new EventFetch();
