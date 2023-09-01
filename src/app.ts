@@ -6,6 +6,9 @@ import routes from "../src/Routes/blockRoutes";
 import cron from "node-cron";
 import eventFetch from "../src/controller/txService";
 import mongo from "./helpers/mongoHelper";
+// import encodeFunction from "./controller/encodedFunction.js"
+
+
 // import mySQL from "./helpers/mySQLHelper";
 
 class App {
@@ -16,10 +19,10 @@ class App {
     dotenv.config();
     this.port = process.env.PORT || 9000;
     this.initMiddleware();
-    cron.schedule("*/3 * * * * *", async () => {
-        await eventFetch.fetchLatestBlock();
-        await eventFetch.fetchLatestEvent();
-    })
+    cron.schedule("*/30 * * * * *", async () => {
+      // await eventFetch.fetchLatestBlock();
+      await eventFetch.fetchLatestEvent();
+    });
   }
 
   public listen() {

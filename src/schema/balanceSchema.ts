@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const balanceSchema = new mongoose.Schema(
   {
-    blockNumber:{type:Number,require:true,unique:true},
+    blockNumber:{type:Number,require:true},
     fromAddress: { type: String ,require:true},
     toAddress: { type: String ,require:true},
     tokenAmount: { type: Number ,require:true},

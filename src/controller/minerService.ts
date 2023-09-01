@@ -7,34 +7,25 @@ class BlockStore {
     dotenv.config();
   }
 
-  public async latestBlock(req: Request, res: Response) {
+  public async latestBlock(data:any) {
     try {
-      const { latestBlockNumber, minerName } = req.body;
-
+      const{latestBlockNumber,minerName} = data;
       const existingBlock = await minerBlockSchema.findOne({
         latestBlockNumber,
       });
 
       if (!existingBlock) {
-        await minerBlockSchema.create({ latestBlockNumber, minerName });
-        console.log(`The latest block added to DB: ${latestBlockNumber}`);
-        res.status(200).json({
-          message: "BlockAdded",
-          blockNumber: latestBlockNumber,
+        let temp = await minerBlockSchema.create({
+          latestBlockNumber,
+          minerName,
         });
+        console.log(`The latest block added to DB: ${latestBlockNumber}`);
+        return temp;
       } else {
         console.log(`Block number ${latestBlockNumber} already exists`);
-        res.status(200).json({
-          message: "BlockExists",
-          blockNumber: latestBlockNumber,
-        });
       }
     } catch (error) {
       console.error(error);
-      res.status(500).json({
-        status: "error",
-        message: "An error occurred while processing the request.",
-      });
     }
   }
 

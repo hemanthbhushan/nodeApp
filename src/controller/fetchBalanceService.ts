@@ -1,60 +1,60 @@
-import { Request, Response } from "express";
-import sortedBalanceSchema from "../schema/sortedBalanceSchema";
+import fetchBalanceService from "../schema/fetchBalanceService";
 import { zeroAddress } from "../common/constants";
+import balanceSchema from "../schema/balanceSchema";
 
 class FetchBalance {
-  async calculateBalance(req: Request, res: Response) {
+  async calculateBalance(fromAddress: any, toAddress: any, tokenAmount: any) {
+    console.log(
+      `formAddress ${fromAddress} , toAddress ${toAddress} , amount ${tokenAmount}`
+    );
     try {
-      const { fromAddress, toAddress, value } = req.body;
-
       if (fromAddress === zeroAddress) {
-        const toAddressExist = await sortedBalanceSchema.findOne({
+        const toAddressExist = await fetchBalanceService.findOne({
           userAddress: toAddress,
         });
 
         if (!toAddressExist) {
-          await sortedBalanceSchema.create({
+          await fetchBalanceService.create({
             userAddress: toAddress,
-            userBalance: value,
+            userBalance: tokenAmount,
           });
+          console.log("created new doc ");
         } else {
-          const updatedDocument = await sortedBalanceSchema.findOneAndUpdate(
+          const updatedDocument = await fetchBalanceService.findOneAndUpdate(
             { userAddress: toAddress },
-            { $inc: { userBalance: value } },
+            { $inc: { userBalance: tokenAmount } },
             { returnOriginal: false }
           );
-          console.log(updatedDocument, "updatedDocument initially created");
+          console.log(
+            updatedDocument,
+            "updatedDocument if Account Address is ZeroAddres"
+          );
         }
       } else {
-        await this.updateOrCreateBalance(fromAddress, -value);
-        await this.updateOrCreateBalance(toAddress, value);
+        await this.updateOrCreateBalance(fromAddress, -tokenAmount);
+        await this.updateOrCreateBalance(toAddress, tokenAmount);
       }
-
-      res.status(200).json({
-        message: "Balance calculation completed",
-      });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        status: "error",
-        message: "An error occurred while processing the request.",
-      });
+      console.error(error, "error in the calculate Function");
     }
   }
-
   async updateOrCreateBalance(address: string, value: number) {
-    const addressExist = await sortedBalanceSchema.findOne({
+    const addressExist = await fetchBalanceService.findOne({
       userAddress: address,
     });
 
     if (addressExist) {
-      const updatedDocument = await sortedBalanceSchema.findOneAndUpdate(
+      const updatedDocument = await fetchBalanceService.findOneAndUpdate(
         { userAddress: address },
         { $inc: { userBalance: value } },
         { returnOriginal: false }
       );
       console.log(updatedDocument, `updatedDocument for address ${address}`);
     } else {
+      await fetchBalanceService.create({
+        userAddress: address,
+        userBalance: value,
+      });
       console.log(`Address ${address} doesn't exist in the DB`);
     }
   }

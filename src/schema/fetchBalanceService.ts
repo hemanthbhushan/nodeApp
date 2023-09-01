@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const fetchBalanceService = new mongoose.Schema(
   {
-    userAddress: { type: String, require: true ,unique:true },
+    userAddress: { type: String, require: true },
     userBalance: { type: Number, require: true },
   },
   { timestamps: true }
