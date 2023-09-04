@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import routes from "../src/Routes/blockRoutes";
 import cron from "node-cron";
-import eventFetch from "../src/controller/txService";
 import mongo from "./helpers/mongoHelper";
 // import mySQL from "./helpers/mySQLHelper";
 
@@ -16,9 +15,9 @@ class App {
     dotenv.config();
     this.port = process.env.PORT || 9000;
     this.initMiddleware();
-    cron.schedule("*/3 * * * * *", async () => {
-        await eventFetch.fetchLatestBlock();
-    })
+    // cron.schedule("*/3 * * * * *", async () => {
+    //     await eventFetch.fetchLatestBlock();
+    // })
   }
 
   public listen() {
