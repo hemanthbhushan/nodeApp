@@ -27,8 +27,10 @@ class App {
   }
 
   private initMiddleware() {
+  
     this.app.use(cors());
     this.app.use(bodyParser.json());
+    this.app.use('/',routes)
     // Connection with mongoDB
     mongo.connectMongoDB();
     // mySQL.connectMySQLDB();

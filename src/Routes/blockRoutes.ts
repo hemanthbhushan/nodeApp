@@ -1,9 +1,9 @@
 import { Router } from "express"; // Import 'express' and 'Router' from 'express'
 
-import minerService from "../controller/minerService";
+import Restaurant from "../controller/Restaurant";
 
 const router: Router = Router(); // Create a router instance
 
-// router.post("/deletMiner", minerService.deleteMiner);
+router.get("/restaurant", Restaurant.restaurant);
 
 export default router;

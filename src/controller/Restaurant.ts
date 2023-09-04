@@ -2,17 +2,17 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 import restaurantSchema from "../schema/restaurantSchema";
 
-class BlockStore {
+class Restaurant {
   constructor() {
     dotenv.config();
   }
 
-  public async latestBlock(req: Request, res: Response) {
+  public async restaurant(req: Request, res: Response) {
     try {
-      const { latestBlockNumber, minerName } = req.body;
-
-      const existingBlock = await restaurantSchema.findOne({
-        latestBlockNumber,
+      const data = await restaurantSchema.find();
+      console.log(data,"data")
+      res.status(200).json({
+        message: "fetched",
       });
     } catch (error) {
       console.error(error);
@@ -24,4 +24,4 @@ class BlockStore {
   }
 }
 
-export default new BlockStore();
+export default new Restaurant();

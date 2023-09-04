@@ -1,26 +1,25 @@
 import mongoose from "mongoose";
 // Define the schema
-const restaurantSchema = new mongoose.Schema({
-  address: {
-    building: String,
-    coord: [Number], // Array of numbers for longitude and latitude
-    street: String,
-    zipcode: String,
-  },
-  borough: String,
-  cuisine: String,
-  grades: [
-    {
-      date: Date,
-      grade: String,
-      score: Number,
-    },
-  ],
-  name: String,
-  restaurant_id: String,
+
+const addresstemp = new mongoose.Schema({
+  building: { type: String },
+  coord: [{ type: Number }],
+  street: { type: String },
+  zipcode: { type: Number },
 });
 
-// Create a model based on the schema
-const Restaurant = mongoose.model('Restaurant', restaurantSchema);
+const gradesTemp = new mongoose.Schema({
+  date:{type:String},
+  grade:{type:String},
+  score:{type:Number}
+})
 
-module.exports = Restaurant;
+const restaurantSchema = new mongoose.Schema({
+  address: { type: addresstemp },
+  borough: { type: String },
+  cuisine: { type: String },
+  grades:[{type:gradesTemp}],
+  name:{type:String},
+  restaurant_id:{type:String}
+});
+export default mongoose.model("Restaurant", restaurantSchema);
