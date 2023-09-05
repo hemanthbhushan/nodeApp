@@ -3,9 +3,10 @@ import txService from "../controller/txService";
 import minerService from "../controller/minerService";
 import loginService from "../controller/signUpService";
 import fetchBalanceService from "../controller/fetchBalanceService";
+import practice from "../controller/practice";
 
 const router: Router = Router(); // Create a router instance
-
+router.get("/practice", practice.practice);
 router.get("/fetchLatestBlock", txService.fetchLatestBlock);
 router.get("/fetchLatestEvent", txService.fetchLatestEvent);
 router.post("/latestBlock", minerService.latestBlock);
