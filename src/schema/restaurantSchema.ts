@@ -22,4 +22,5 @@ const restaurantSchema = new mongoose.Schema({
   name:{type:String},
   restaurant_id:{type:String}
 });
-export default mongoose.model("Restaurant", restaurantSchema);
+export default mongoose.model("restaurant", restaurantSchema);
+
