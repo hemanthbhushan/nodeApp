@@ -38,7 +38,8 @@ class Restaurant {
       });
     }
   }
-  // 2. Write a MongoDB query to display the fields restaurant_id, name, borough and cuisine for all the documents in the collection restaurant.
+  // 2. Write a MongoDB query to display the fields restaurant_id, name,
+  // borough and cuisine for all the documents in the collection restaurant.
   public async restaurant2(req: Request, res: Response) {
     try {
       const data = await restaurantSchema.find(
@@ -57,7 +58,8 @@ class Restaurant {
       });
     }
   }
-  // 4. Write a MongoDB query to display the fields restaurant_id, name, borough and zip code, but exclude the field _id for all the documents in the collection restaurant.
+  // 4. Write a MongoDB query to display the fields restaurant_id,
+  //name, borough and zip code, but exclude the field _id for all the documents in the collection restaurant.
   public async restaurant3(req: Request, res: Response) {
     try {
       const data = await restaurantSchema.find(
@@ -403,11 +405,209 @@ class Restaurant {
       });
     }
   }
-  // 20. Write a MongoDB query to find the restaurant Id, name, borough
-  // and cuisine for those restaurants which achieved a score which is not more than 10.
+  // 20. Write a MongoDB query to find the restaurant Id, name, borough and
+  // cuisine for those restaurants which achieved a score which is not more than 10.
+  public async restaurant19(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find(
+        { "grades.score": { $lte: 10 } },
+        { restaurant_id: 1, name: 1, borough: 1, cuisine: 1 }
+      );
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 21. Write a MongoDB query to find the restaurant Id, name, borough and cuisine for those
+  // restaurants which prepared dish except 'American' and 'Chinees' or restaurant's name begins with letter 'Wil'.
+  public async restaurant20(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find(
+        {
+          $or: [
+            {
+              $and: [
+                { cuisine: { $ne: "American " } },
+                { cuisine: { $ne: "Chinese" } },
+              ],
+            },
+            { name: /^Wil/ },
+          ],
+        },
+        { restaurant_id: 1, name: 1, borough: 1, cuisine: 1 }
+      );
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 22. Write a MongoDB query to find the restaurant Id, name, and grades for those restaurants which achieved a grade
+  // of "A" and scored 11 on an ISODate "2014-08-11T00:00:00Z" among many of survey dates..
+  public async restaurant21(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find(
+        {
+          "grades.grade": "A",
+          "grades.score": 11,
+          "grades.date": { $date: "2014-08-11T00:00:00Z" },
+        },
+        { restaurant_id: 1, name: 1, grades: 1 }
+      );
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 23. Write a MongoDB query to find the restaurant Id, name and grades for those restaurants
+  //  where the 2nd element of grades array contains a grade of "A" and score 9 on an ISODate "2014-08-11T00:00:00Z".
+  public async restaurant22(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find(
+        {
+          "grades.1.grade": "A",
+          "grades.1.score": 9,
+          "grades.1.date": { $date: "2014-08-11T00:00:00Z" },
+        },
+        { restaurant_id: 1, name: 1, grades: 1 }
+      );
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 24. Write a MongoDB query to find the restaurant Id, name, address and geographical location
+  // for those restaurants where 2nd element of coord array contains a value which is more than 42 and upto 52..
+  public async restaurant23(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find(
+        { "address.coord.1": { $gt: 42, $lte: 52 } },
+        { restaurant_id: 1, name: 1, grades: 1 }
+      );
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 25. Write a MongoDB query to arrange the name of the restaurants in ascending order along with all the columns.
+  public async restaurant24(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find().sort({ name: -1 });
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 26. Write a MongoDB query to arrange the name of the restaurants in descending along with all the columns.
+  public async restaurant25(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find().sort({ name: 1 });
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 27. Write a MongoDB query to arranged the
+  // name of the cuisine in ascending order and for that same cuisine borough should be in descending order.
+  public async restaurant26(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema
+        .find()
+        .sort({ cuisine: -1, borough: 1 });
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 28. Write a MongoDB query to know whether all the addresses contains the street or not.
+  public async restaurant27(req: Request, res: Response) {
+    try {
+      const data = await restaurantSchema.find({
+        "address.street": { $exists: true },
+      });
+
+      console.log(data, "data");
+      res.status(200).json({
+        message: "fetched",
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({
+        status: "error",
+        message: "An error occurred while processing the request.",
+      });
+    }
+  }
+  // 29. Write a MongoDB query which will select all
+  //  documents in the restaurants collection where the coord field value is Double.
   public async restaurant(req: Request, res: Response) {
     try {
-      const data = await restaurantSchema.find();
+      const data = await restaurantSchema.find({
+        "address.street": { $exists: true },
+      });
 
       console.log(data, "data");
       res.status(200).json({
