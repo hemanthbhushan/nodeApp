@@ -19,10 +19,10 @@ class App {
     dotenv.config();
     this.port = process.env.PORT || 9000;
     this.initMiddleware();
-    cron.schedule("*/30 * * * * *", async () => {
-      // await eventFetch.fetchLatestBlock();
-      await eventFetch.fetchLatestEvent();
-    });
+    // cron.schedule("*/30 * * * * *", async () => {
+    //   // await eventFetch.fetchLatestBlock();
+    //   await eventFetch.fetchLatestEvent();
+    // });
   }
 
   public listen() {

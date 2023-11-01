@@ -1,116 +1,61 @@
-import axios from "axios";
+import { Request, Response } from "express";
 import dotenv from "dotenv";
 import Web3 from "web3"; // Import the entire Web3 module
-import UsdtAbi from "../abi/USDT_ABI";
-import balanceSchema from "../schema/balanceSchema";
-import latestBlockSchema from "../schema/latestBlockSchema";
-import fetchBalanceService from "./fetchBalanceService";
-import BlockStore from "../controller/minerService";
+import POOL_ABI from "../abi/POOL_ABI";
+import ORACLE_ABI from "../abi/ORACLE_ABI";
+
+//0x87870bca3f3fd6335c3f4ce8392d69350b4fa4e2 pool contract address we have
+//form the above we have to fetch the wallets from the events which have
+//the wbtc as the asset
 
 class EventFetch {
   constructor() {
     dotenv.config();
   }
 
-  async fetchLatestBlock() {
+  async fetchLatestBlock(req: Request, res: Response) {
     try {
       const web3 = new Web3(
         new Web3.providers.HttpProvider(process.env.RPC as string)
       );
       const blockNumber = await web3.eth.getBlockNumber();
+      const poolContract = new web3.eth.Contract(
+        POOL_ABI as any,
+        process.env.PoolAddress as any
+      );
+
+      const oracleContract = new web3.eth.Contract(
+        ORACLE_ABI as any,
+        process.env.oracleAddress as any
+      );
+
+      const assetPrice = await oracleContract.methods
+        .getAssetPrice(process.env.WbtcAddress as any)
+        .call();
+
       console.log("The latest block is " + blockNumber);
+      console.log("The assetPrice is " + assetPrice);
 
-      const dataToSend = {
-        latestBlockNumber: blockNumber,
-        minerName: "none",
-      };
+      const events = await poolContract.getPastEvents("Supply", {
+        fromBlock: 18436820,
+        toBlock: 18436820,
+      });
 
-      let temp = await BlockStore.latestBlock(dataToSend);
-
-      if (temp) {
-        console.log("Data posted successfully to target API");
-      } else {
-        console.log("Failed to post data to target API");
-      }
+      console.log("==========events=======================", events);
+      // const myEvents = await events
+      //   .filter((e: any) => {
+      //     console.log("e", e);
+      //     return e.event === "Mint";
+      //   })
+      //   .map((el: any) => {});
+      return res.status(200).send({
+        message: "done",
+        assetPrice,
+        blockNumber,
+      });
     } catch (error) {
       console.error(error);
       throw new Error(`Error: ${error}`);
-    }
-  }
-
-  async fetchLatestEvent() {
-    try {
-      const web3 = new Web3(
-        new Web3.providers.HttpProvider(process.env.RPC as string)
-      );
-
-      // const receipt = await web3.eth.getTransactionReceipt(
-      //   process.env.TXHash as string
-      // );
-
-      const latestBlockNumber = await web3.eth.getBlockNumber();
-      const temp = await latestBlockSchema.findOne().sort({ createdAt: -1 });
-  
-
-      const historicBlock = temp
-        ? Number(temp.latestBlockNumber)
-        : process.env.BLOCK;
-
-      console.log(historicBlock, "historicBlock");
-
-      const maxBlockLimit = Number(historicBlock) + 100;
-      console.log(maxBlockLimit, "maxBlockLimit");
-      const toBlock = Math.min(latestBlockNumber, maxBlockLimit);
-
-      const contractInstance = new web3.eth.Contract(
-        UsdtAbi,
-        process.env.USDTAddress
-      );
-      const events = await contractInstance.getPastEvents("Transfer", {
-        fromBlock: historicBlock,
-        toBlock: toBlock,
-      });
-      console.log("events=========>", events.length, "===========");
-      if (events.length > 0) {
-        const eventData = events.map((event) => ({
-          blockNumber: event.blockNumber,
-          fromAddress: event.returnValues.from,
-          toAddress: event.returnValues.to,
-          tokenAmount: event.returnValues.value,
-        }));
-        await balanceSchema.insertMany(eventData);
-        for (const event of eventData) {
-          try {
-            await fetchBalanceService.calculateBalance(
-              event.fromAddress,
-              event.toAddress,
-              event.tokenAmount
-            );
-          } catch (error) {
-            console.error("Error processing balance:", error);
-          }
-        }
-
-        console.log("Event processing completed.");
-      } else {
-        console.log("No Event Found.");
-      }
-
-      const blockObj = {
-        latestBlockNumber: Math.max(Number(historicBlock), toBlock) + 1,
-      };
-
-      if (!temp) {
-        await latestBlockSchema.create(blockObj);
-      } else {
-        await latestBlockSchema.findOneAndUpdate(
-          { lastBlockNumber: historicBlock },
-          blockObj
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      throw new Error(`Error: ${err}`);
     }
   }
 }
