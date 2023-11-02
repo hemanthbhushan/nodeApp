@@ -114,9 +114,10 @@ class EventFetch {
 
       console.log(historicBlock, "historicBlock");
 
-      const maxBlockLimit = Number(historicBlock) + 500;
+      const maxBlockLimit = Number(historicBlock) + 1000;
       console.log(maxBlockLimit, "maxBlockLimit");
       const toBlock = Math.min(18436820, maxBlockLimit);
+      console.log(toBlock, "toBlock");
 
       const poolContract = new web3.eth.Contract(
         POOL_ABI as any,
