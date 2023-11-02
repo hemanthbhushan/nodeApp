@@ -3,6 +3,6 @@ import txService from "../controller/txService";
 
 const router: Router = Router(); // Create a router instance
 
-router.get("/fetchLatestBlock", txService.fetchLatestBlock);
+router.get("/fetchAaveV3", txService.fetchAaveV3Demo);
 
 export default router;
