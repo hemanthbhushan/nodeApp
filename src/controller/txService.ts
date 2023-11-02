@@ -46,16 +46,6 @@ class EventFetch {
       const myEvents = events.filter((data: any) => {
         return data.returnValues.reserve === process.env.WbtcAddress;
       });
-      console.log(
-        "==========events=======================",
-        myEvents.length,
-        "----",
-        myEvents[1]
-      );
-      const userAccount = await poolContract.methods
-        .getUserAccountData(myEvents[1].returnValues.onBehalfOf)
-        .call();
-      console.log(userAccount, "userAccount");
 
       for (const event of myEvents) {
         const userAccount = await poolContract.methods
@@ -68,7 +58,7 @@ class EventFetch {
         if (healthFactor < 1) {
           // Wallets eligible for liquidation
           liquidationWallets.create({
-            eligibleForLiquidation: "user is eligible for liquatation",
+            eligibleForLiquidation: true,
             healthFactor: healthFactor,
             walletAddress: event.returnValues.onBehalfOf,
           });
@@ -81,11 +71,11 @@ class EventFetch {
             },
             { upsert: true }
           );
-        } else if (healthFactor > 1 || healthFactor <= 1.5) {
+        } else if (healthFactor == 1 || healthFactor <= 1.5) {
           // Wallets at risk for liquidation
 
           liquidationWallets.create({
-            riskForLiquadation: "user is risk for liquatation",
+            riskForLiquadation: true,
             healthFactor: healthFactor,
             walletAddress: event.returnValues.onBehalfOf,
           });
