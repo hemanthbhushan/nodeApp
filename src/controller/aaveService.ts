@@ -144,7 +144,7 @@ class EventFetch {
       const myEvents = events.filter((data: any) => {
         return data.returnValues.reserve === process.env.WbtcAddress;
       });
-      console.log("(===========events==========)",myEvents)
+      console.log("(===========events==========)",myEvents.length)
 
       for (const event of myEvents) {
         const userAccount = await poolContract.methods

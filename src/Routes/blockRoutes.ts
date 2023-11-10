@@ -1,5 +1,5 @@
 import { Router } from "express"; // Import 'express' and 'Router' from 'express'
-import txService from "../controller/txService";
+import txService from "../controller/aaveService";
 
 const router: Router = Router(); // Create a router instance
 

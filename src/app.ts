@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import routes from "../src/Routes/blockRoutes";
 import cron from "node-cron";
-import eventFetch from "../src/controller/txService";
+import eventFetch from "../src/controller/aaveService";
 import mongo from "./helpers/mongoHelper";
 // import encodeFunction from "./controller/encodedFunction.js"
 
