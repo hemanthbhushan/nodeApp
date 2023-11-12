@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import bodyParser from "body-parser";
 import routes from "../src/Routes/blockRoutes";
 import cron from "node-cron";
-import eventFetch from "../src/controller/aaveService";
+import eventFetch from "../src/controller/LocalEvm";
 import mongo from "./helpers/mongoHelper";
 // import encodeFunction from "./controller/encodedFunction.js"
 
@@ -19,7 +19,7 @@ class App {
     this.port = process.env.PORT || 9000;
     this.initMiddleware();
     cron.schedule("*/3 * * * * *", async () => {
-      await eventFetch.fetchAaveV3Demo();
+      await eventFetch.locakEvm();
     });
   }
 
